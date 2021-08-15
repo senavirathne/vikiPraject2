@@ -13,7 +13,13 @@ namespace vikiProject
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            // CreateHostBuilder(args).Build().Run();
+            var list = new List<int>()
+            {
+                1,2,3,4
+            };
+            
+            Console.WriteLine(list[0]);
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

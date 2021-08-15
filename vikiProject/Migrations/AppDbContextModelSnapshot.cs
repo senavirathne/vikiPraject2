@@ -23,9 +23,11 @@ namespace vikiProject.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageSource")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("NoOfEpisodes")
@@ -46,26 +48,46 @@ namespace vikiProject.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("AudioLink")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("DramaId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid?>("DramaId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("EpisodeSource")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageSource")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("VideoLink")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DramaId");
+
                     b.ToTable("Episodes");
+                });
+
+            modelBuilder.Entity("vikiProject.Models.Episode", b =>
+                {
+                    b.HasOne("vikiProject.Models.Drama", "Drama")
+                        .WithMany("Episodes")
+                        .HasForeignKey("DramaId");
+
+                    b.Navigation("Drama");
+                });
+
+            modelBuilder.Entity("vikiProject.Models.Drama", b =>
+                {
+                    b.Navigation("Episodes");
                 });
 #pragma warning restore 612, 618
         }
