@@ -23,7 +23,8 @@ namespace vikiProject
                 builder.UseSqlite( "Data Source=mydb.db;");
 
             });
-            // services.AddEntityFrameworkSqlite();
+            services.AddSingleton<AddDramaService>();
+            services.AddSingleton<KdramaMainService>();
             services.AddControllers();
             
         }

@@ -16,6 +16,26 @@ namespace vikiProject.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.9");
 
+            modelBuilder.Entity("vikiProject.Models.DownloadLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AddedTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AudioLink")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VideoLink")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DownloadLink");
+                });
+
             modelBuilder.Entity("vikiProject.Models.Drama", b =>
                 {
                     b.Property<Guid>("Id")
@@ -26,14 +46,11 @@ namespace vikiProject.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("MainName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("NoOfEpisodes")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Priority")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -47,11 +64,10 @@ namespace vikiProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AudioLink")
-                        .IsRequired()
+                    b.Property<Guid?>("DownloadLinkId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("DramaId")
+                    b.Property<Guid>("DramaId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("EpisodeNumber")
@@ -65,11 +81,9 @@ namespace vikiProject.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("VideoLink")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("DownloadLinkId");
 
                     b.HasIndex("DramaId");
 
@@ -78,9 +92,17 @@ namespace vikiProject.Migrations
 
             modelBuilder.Entity("vikiProject.Models.Episode", b =>
                 {
+                    b.HasOne("vikiProject.Models.DownloadLink", "DownloadLink")
+                        .WithMany()
+                        .HasForeignKey("DownloadLinkId");
+
                     b.HasOne("vikiProject.Models.Drama", "Drama")
                         .WithMany("Episodes")
-                        .HasForeignKey("DramaId");
+                        .HasForeignKey("DramaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DownloadLink");
 
                     b.Navigation("Drama");
                 });

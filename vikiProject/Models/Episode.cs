@@ -12,6 +12,6 @@ namespace vikiProject.Models
         [Required] public string EpisodeSource { get; set; }
 
         public DownloadLink DownloadLink { get; set; }
-        public Drama Drama { get; set; }
+        [Required] public Drama Drama { get; set; }
     }
 }

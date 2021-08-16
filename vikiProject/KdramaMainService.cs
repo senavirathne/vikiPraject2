@@ -12,35 +12,41 @@ namespace vikiProject
     public class KdramaMainService
     {
         private readonly AppDbContext _dbContext;
+        private readonly AddDramaService _addDramaService;
 
-        public KdramaMainService(AppDbContext dbContext)
+        public KdramaMainService(AppDbContext dbContext, AddDramaService addDramaService)
         {
             _dbContext = dbContext;
+            _addDramaService = addDramaService;
         }
 
-        public async Task<Guid> AddDrama(AddDramaDto dramaDto)
+        public async Task<bool> AddDrama(string code)
         {
-            var drama = new Drama()
-            {
-                Id = Guid.NewGuid(),
-                Name = dramaDto.Name,
-                // ImageSource = dramaDto.ImageSource,
-                // NoOfEpisodes = dramaDto.NoOfEpisodes
-            };
-            await _dbContext.Dramas.AddAsync(drama);
-            await _dbContext.SaveChangesAsync();
-            return drama.Id;
-        }
+            var jObject = (await _addDramaService.GetDramaDetails(code)).JObject; // todo 
 
-        public async Task<bool> UpdateDrama(UpdateDramaDto dramaDto)
-        {
-            var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaDto.DramaName);
-            if (drama != null)
+            if (jObject != null)
             {
-                drama.ImageSource = dramaDto.ImageSource;
-                drama.NoOfEpisodes = dramaDto.NoOfEpisodes;
+                var dramaName = jObject["response"][0]["container"]["titles"]["hi"].ToString();
+                var dramaImageSource = jObject["response"][0]["container"]["images"]["poster"]["url"].ToString();
+                var noOfEpisodes =
+                    int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
+                
+                var drama = new Drama()
+                {
+                    Id = Guid.NewGuid(),
+                    MainName = dramaName,
+                    ImageSource = dramaImageSource,
+                    NoOfEpisodes = noOfEpisodes
+                };
+                await _dbContext.Dramas.AddAsync(drama);
+                for (var i = 0; i < noOfEpisodes; i++)
+                {
+                    var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
+                    var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
+                    var episodeSource = jObject["response"][i]["url"]["web"].ToString();
+                    await AddEpisode(episodeNumber, episodeSource, episodeImageSource, drama); // check if true todo 
+                }
 
-                // await _dbContext.Dramas.AddAsync(drama);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
@@ -48,18 +54,52 @@ namespace vikiProject
             return false;
         }
 
-        public async Task<Guid> AddEpisode(AddEpisodeDto episodeDto)
+        #region MyRegion
+
+        // public async Task<bool> UpdateDrama(UpdateDramaDto dramaDto)
+        // {
+        //     var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaDto.DramaName);
+        //     if (drama != null)
+        //     {
+        //         drama.ImageSource = dramaDto.ImageSource;
+        //         drama.NoOfEpisodes = dramaDto.NoOfEpisodes;
+        //
+        //         // await _dbContext.Dramas.AddAsync(drama);
+        //         await _dbContext.SaveChangesAsync();
+        //         return true;
+        //     }
+        //
+        //     return false;
+        // }
+
+        #endregion
+
+        public async Task<bool> SetOtherNames(SetDramaNameDto dramaName)
+        {
+            // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaName.MainName);
+            // if (drama != null)
+            // {
+            //     drama.OtherNames.Add(dramaName.OtherName);
+            //
+            //     await _dbContext.SaveChangesAsync();
+            //     return true;
+            // }
+            //
+            return false;
+        }
+
+        private async Task<Guid> AddEpisode(int episodeNumber, string episodeSource, string imageSource, Drama drama)
         {
             var episode = new Episode()
             {
                 Id = Guid.NewGuid(),
-                EpisodeNumber = episodeDto.EpisodeNumber,
-                EpisodeSource = episodeDto.EpisodeSource,
-                ImageSource = episodeDto.ImageSource,
-                // DownloadLink = new DownloadLink(episodeDto.AudioLink, episodeDto.VideoLink)
+                EpisodeNumber = episodeNumber,
+                EpisodeSource = episodeSource,
+                ImageSource = imageSource,
+                Drama = drama
             };
             await _dbContext.Episodes.AddAsync(episode);
-            await _dbContext.SaveChangesAsync();
+
             return episode.Id;
         }
 
@@ -67,8 +107,8 @@ namespace vikiProject
         {
             if (!string.IsNullOrEmpty(searchTerm.String))
             {
-                return (await _dbContext.Dramas.Where(d => d.Name.Contains(searchTerm.String)).ToListAsync())
-                    .Select(d => new StringDto(d.Name));
+                return (await _dbContext.Dramas.Where(d => d.MainName.Contains(searchTerm.String)).ToListAsync())
+                    .Select(d => new StringDto(d.MainName));
             }
 
             return null; // @todo
@@ -78,12 +118,14 @@ namespace vikiProject
         {
             if (!string.IsNullOrEmpty(dramaName.String))
             {
-                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaName.String);
+                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaName.String);
                 return new IntegerDto(drama.NoOfEpisodes);
             }
 
             return null; //return error @todo
         }
+
+        #region MyRegion
 
         // public async Task<GetEpisodeListDto> GetEpisodes(string name)
         // {
@@ -94,11 +136,14 @@ namespace vikiProject
         //     }
         //     return null; //return error @todo
         // }
+
+        #endregion
+
         public async Task<StringDto> GetDramaImageSource(StringDto dramaName)
         {
             if (!string.IsNullOrEmpty(dramaName.String))
             {
-                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaName.String);
+                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaName.String);
                 return new StringDto(drama.ImageSource);
             }
 
@@ -111,7 +156,7 @@ namespace vikiProject
             {
                 // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String);
 
-                return new StringDto((await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String))
+                return new StringDto((await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String))
                     .Episodes.FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
                     ?.ImageSource);
             }
@@ -125,7 +170,7 @@ namespace vikiProject
             {
                 // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String); //join linq @todo
 
-                return new StringDto((await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String))
+                return new StringDto((await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String))
                     .Episodes.FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
                     ?.EpisodeSource);
             }
@@ -140,7 +185,7 @@ namespace vikiProject
                 // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String);
 
                 return new GetDownloadLinkDto(
-                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String)).Episodes
+                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String)).Episodes
                     .FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
                     ?.DownloadLink);
             }
@@ -152,7 +197,8 @@ namespace vikiProject
         {
             if (addDownloadLink != null)
             {
-                var episode = (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == addDownloadLink.DramaName))
+                var episode =
+                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == addDownloadLink.DramaName))
                     .Episodes.FirstOrDefault(e => e.EpisodeNumber == addDownloadLink.EpiNumber);
                 if (episode != null)
                 {

@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using vikiProject.Models;
 
 namespace vikiProject.Dto
 
 {
-    public record AddDramaDto(Guid Id, string Name);
+    public record JsonDto(JObject JObject);
 
-    public record UpdateDramaDto(string DramaName,int NoOfEpisodes, string ImageSource);
-    public record AddEpisodeDto(Guid Id,int EpisodeNumber, string EpisodeSource, string ImageSource,string AudioLink
-        ,string VideoLink );
+    // public record UpdateDramaDto(string DramaName,int NoOfEpisodes, string ImageSource);
+    public record AddEpisodeDto(Drama Drama, int EpisodeNumber, string EpisodeSource, string ImageSource );
 
     public record StringDto(string String);
+    
+    public record SetDramaNameDto(string MainName, string OtherName);
+    
     public record IntegerDto(int Number);
     public record StringIntegerDto(string String,int Number);
     public record GetDownloadLinkDto(DownloadLink DownloadLink);

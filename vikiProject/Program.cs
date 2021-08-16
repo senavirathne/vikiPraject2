@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,15 +13,15 @@ namespace vikiProject
 {
     public class Program
     {
-        public static void Main(string[] args)
+        
+        public static async Task Main(string[] args)
         {
             // CreateHostBuilder(args).Build().Run();
-            var list = new List<int>()
-            {
-                1,2,3,4
-            };
             
-            Console.WriteLine(list[0]);
+
+            
+        
+        
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
