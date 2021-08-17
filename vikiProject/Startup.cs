@@ -18,13 +18,15 @@ namespace vikiProject
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddDbContext<AppDbContext>(builder =>
             {
-                builder.UseSqlite( "Data Source=mydb.db;");
+                builder.UseSqlite( "Data Source=mydb.db");
 
             });
-            services.AddSingleton<AddDramaService>();
-            services.AddSingleton<KdramaMainService>();
+            
+            services.AddTransient<AddDramaService>();
+            services.AddTransient<KdramaMainService>();
             services.AddControllers();
             
         }
@@ -39,10 +41,7 @@ namespace vikiProject
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello World!"); });
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

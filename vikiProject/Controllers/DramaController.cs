@@ -5,21 +5,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace vikiProject.Controllers
 {
     [ApiController]
-    [Route("/drama")]
+    [Route("/")]
     public class DramaController : Controller
     {
         private readonly KdramaMainService _kdramaMainService;
+        private readonly AddDramaService _addDramaService;
 
-        public DramaController(KdramaMainService kdramaMainService)
+        public DramaController(KdramaMainService kdramaMainService, AddDramaService addDramaService)
         {
             _kdramaMainService = kdramaMainService;
+            _addDramaService = addDramaService;
         }
         [HttpGet]
-        [Route("{name}")]
-        public async Task<IActionResult> Get([FromRoute] string name)
+        
+        public async Task<IActionResult> Get()
         {
-            var repository =await _kdramaMainService.AddDrama(name);
-            if (!repository)
+            const string drama = "playful kiss";
+            var findDrama = await _addDramaService.GetDramaNameswithCodes(drama);
+            var addDrama =await _kdramaMainService.AddDrama(findDrama[0].code);
+            if (!addDrama)
             {
                 return NotFound();
             }
