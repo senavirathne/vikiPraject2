@@ -1,27 +1,24 @@
+
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
 
 namespace vikiProject
 {
     public class Program
     {
-        
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-            
+            // CreateHostBuilder(args).Build().Run();
 
-            
-        
-        
+            var url = "https://www.viki.com/videos/67918v-playful-kiss-episode-1";
+            var x = new GenerateLinkService();
+            await x.GetManifest(url);
+
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -17,12 +17,11 @@ namespace vikiProject
 {
     public class AddDramaService
     {
-        private  async Task<string> FindDrama(string drama)
+        private async Task<string> FindDrama(string drama)
         {
             var uri = "https://www.google.com/search?q=site%3Aviki.com%20" + drama.Trim().Replace(" ", "%20");
             var request = (HttpWebRequest) WebRequest.Create(uri);
-            request.UserAgent =
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.0 Safari/537.36";
+            request.UserAgent = Constants.UserAgent;
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             using var response = (HttpWebResponse) await request.GetResponseAsync();
@@ -51,20 +50,18 @@ namespace vikiProject
                     var x = d.Split("c-");
                     list.Add((x[0], x[1].Replace("-", " ")));
                 }
-                
             }
 
             return list; // @todo return erorr
         }
+
 // add details to dataBase
         public async Task<JsonDto> GetDramaDetails(string code)
         {
             var uri =
                 $"https://api.viki.io/v4/containers/{code}c/episodes.json?token=undefined&direction=asc&blocked=false&only_ids=false&per_page={Constants.PerPage}&app=100000a";
             var request = (HttpWebRequest) WebRequest.Create(uri);
-            request.UserAgent =
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.0 Safari/537.36";
-
+            request.UserAgent = Constants.UserAgent;
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             using var response = (HttpWebResponse) await request.GetResponseAsync(); // todo use http client

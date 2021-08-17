@@ -7,6 +7,7 @@ namespace vikiProject.Dto
 
 {
     public record JsonDto(JObject JObject);
+    
 
     // public record UpdateDramaDto(string DramaName,int NoOfEpisodes, string ImageSource);
     public record AddEpisodeDto(Drama Drama, int EpisodeNumber, string EpisodeSource, string ImageSource );
