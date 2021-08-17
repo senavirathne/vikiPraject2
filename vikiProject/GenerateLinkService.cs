@@ -15,14 +15,14 @@ namespace vikiProject
     
         public async Task GetManifest(string url)
         {
-
+            string link;
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
             var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = false
             });
 
-            await using (var page = await browser.NewPageAsync())
+            var page = await browser.NewPageAsync();
             {
                 await page.SetUserAgentAsync(Constants.UserAgent);
                 await page.SetRequestInterceptionAsync(true);
@@ -41,9 +41,10 @@ namespace vikiProject
                     {
                        
                         // page.SetRequestInterceptionAsync(false);
-                        await DownloadLinkGenerator(e.Request.Url);
-                        await browser.CloseAsync(); //todo page close instead
-                      
+                        link = e.Request.Url;
+                        await page.SetRequestInterceptionAsync(false);
+                        await page.CloseAsync();
+
                     }
 
                     else
@@ -58,7 +59,7 @@ namespace vikiProject
            
         }
 
-        private async Task DownloadLinkGenerator(string link)
+        private async Task<string> GetXMl(string link)
         {
            
             var request = (HttpWebRequest) WebRequest.Create(link);
@@ -67,8 +68,12 @@ namespace vikiProject
 
             using var response = (HttpWebResponse) await request.GetResponseAsync();
             await using var stream = response.GetResponseStream();
-            using var reader = new StreamReader(stream).ReadToEndAsync();
-            XDocument x = XDocument.Parse(await reader);
+            return await new StreamReader(stream).ReadToEndAsync();
+
+        }
+
+        private async Task<string> DownloadLinkGenerator(string link)
+        {
             
         }
     }
