@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,16 @@ namespace vikiProject
     {
         private readonly AppDbContext _dbContext;
         private readonly AddDramaService _addDramaService;
+        private readonly GenerateLinkService _generateLinkService;
 
-        public KdramaMainService(AppDbContext dbContext, AddDramaService addDramaService)
+        public KdramaMainService(AppDbContext dbContext, AddDramaService addDramaService,
+            GenerateLinkService generateLinkService)
         {
             _dbContext = dbContext;
             _addDramaService = addDramaService;
+            _generateLinkService = generateLinkService;
         }
+
 
         public async Task<bool> AddDrama(string code)
         {
@@ -30,7 +35,7 @@ namespace vikiProject
                 var dramaImageSource = jObject["response"][0]["container"]["images"]["poster"]["url"].ToString();
                 var noOfEpisodes =
                     int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
-                
+
                 var drama = new Drama()
                 {
                     Id = Guid.NewGuid(),
@@ -96,7 +101,8 @@ namespace vikiProject
                 EpisodeNumber = episodeNumber,
                 EpisodeSource = episodeSource,
                 ImageSource = imageSource,
-                Drama = drama
+                Drama = drama,
+                AddedTime = DateTime.Now //todo utc?
             };
             await _dbContext.Episodes.AddAsync(episode);
 
@@ -178,37 +184,51 @@ namespace vikiProject
             return null; //return error @todo
         }
 
-        public async Task<GetDownloadLinkDto> GetDownloadLink(StringIntegerDto dramaEpNo)
-        {
-            if (!string.IsNullOrEmpty(dramaEpNo.String))
-            {
-                // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String);
+        // public async Task<GetDownloadLinkDto> GetDownloadLink(StringIntegerDto dramaEpNo)
+        // {
+        //     if (!string.IsNullOrEmpty(dramaEpNo.String))
+        //     {
+        //         // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String);
+        //
+        //         return new GetDownloadLinkDto(
+        //             (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String)).Episodes
+        //             .FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
+        //             ?.DownloadLink);
+        //     }
+        //
+        //     return null; //return error @todo
+        // }
 
-                return new GetDownloadLinkDto(
-                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String)).Episodes
-                    .FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
-                    ?.DownloadLink);
+        public async Task<bool> AddDownloadLink(StringIntegerDto dramaEpNo)
+        {
+            await _generateLinkService.GetManifest(await GetEpisodeSource(dramaEpNo));
+           var xml = (await _generateLinkService.GetMpd2()).Tuple.xml;
+
+
+            foreach (var qValue in Enum.GetValues(typeof(Quality)))
+            {
+               // audio link & size
+               //video link & size
+               
             }
 
-            return null; //return error @todo
+
+            // if (addDownloadLink != null)
+            // {
+            //     var episode =
+            //         (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == addDownloadLink.DramaName))
+            //         .Episodes.FirstOrDefault(e => e.EpisodeNumber == addDownloadLink.EpiNumber);
+            //     if (episode != null)
+            //     {
+            //         episode.DownloadLink = new DownloadLink(addDownloadLink.AudioLink, addDownloadLink.VideoLink);
+            //         await _dbContext.SaveChangesAsync();
+            //         return true;
+            //     }
+
+
+            return false;
         }
 
-        public async Task<bool> AddDownloadLink(AddDownloadLinkDto addDownloadLink)
-        {
-            if (addDownloadLink != null)
-            {
-                var episode =
-                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == addDownloadLink.DramaName))
-                    .Episodes.FirstOrDefault(e => e.EpisodeNumber == addDownloadLink.EpiNumber);
-                if (episode != null)
-                {
-                    episode.DownloadLink = new DownloadLink(addDownloadLink.AudioLink, addDownloadLink.VideoLink);
-                    await _dbContext.SaveChangesAsync();
-                    return true;
-                }
-            }
-
-            return false; //return error @todo
-        }
+        // return false; //return error @todo
     }
 }

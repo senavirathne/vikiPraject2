@@ -14,7 +14,9 @@ namespace vikiProject.Dto
 
     public record StringDto(string String);
     
+    public record TupleDto((string prefix,string xml) Tuple);
     public record SetDramaNameDto(string MainName, string OtherName);
+    
     
     public record IntegerDto(int Number);
     public record StringIntegerDto(string String,int Number);
