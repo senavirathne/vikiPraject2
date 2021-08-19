@@ -7,8 +7,7 @@ namespace vikiProject.Models
 {
     public class Drama
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
+        
         public int DramaId { get; set; }
 
          public string ImageSource { get; }

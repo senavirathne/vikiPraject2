@@ -38,8 +38,7 @@ namespace vikiProject
                     int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
 
 
-                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes);
-                await _dbContext.Dramas.AddAsync(drama);
+                
                 
                 var episodes = new List<Episode>();
                 for (var i = 0; i < noOfEpisodes; i++)
@@ -52,8 +51,9 @@ namespace vikiProject
                     episodes.Add(episode);
                 }
 
-                drama.Episodes = episodes;
-                _dbContext.Dramas.Update(drama);
+                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
+                await _dbContext.Dramas.AddAsync(drama);
+                
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
@@ -166,22 +166,22 @@ namespace vikiProject
             return null; //return error @todo
         }
 
-        private async Task<string> GetEpisode(string name, int number)
+        private async Task<Episode> GetEpisode(string name, int number)
         {
             var ss = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == name);
-            var dd = ss.Episodes.FirstOrDefault(e => e.EpisodeNumber == number)?.EpisodeSource;
+            var dd = ss.Episodes.FirstOrDefault(e => e.EpisodeNumber == number);
 
             return dd;
 
             return (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == name))
-                .Episodes.FirstOrDefault(e => e.EpisodeNumber == number)?.EpisodeSource;
+                .Episodes.FirstOrDefault(e => e.EpisodeNumber == number);
         }
 
         public async Task<bool> AddDownloadLink(StringIntegerDto dramaEpNo)
         {
-            ;
+            var episode = await GetEpisode(dramaEpNo.String, dramaEpNo.Number);
             await _generateLinkService.GetManifest(
-                new StringDto(await GetEpisode(dramaEpNo.String, dramaEpNo.Number)));
+                new StringDto(episode.EpisodeSource));
             var xmlAndPrefix = await _generateLinkService.GetMpd2();
             int[] qualities = {240, 360, 480, 720, 1080};
             var list = new List<DownloadLink>();
@@ -242,6 +242,7 @@ namespace vikiProject
             if (episode != null)
             {
                 episode.DownloadLinks = list;
+                _dbContext.Episodes.Update(episode);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }

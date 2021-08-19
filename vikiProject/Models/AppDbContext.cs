@@ -31,10 +31,13 @@ namespace vikiProject.Models
                 .HasKey(d => new {d.DramaId, d.EpisodeNumber});
             // base.OnModelCreating(modelBuilder);
             
+            
             //drama
             modelBuilder.Entity<Drama>()
+                .HasKey(d => d.DramaId);
+            modelBuilder.Entity<Drama>()
                 .Property(d => d.DramaId)
-                .IsRequired();
+                .ValueGeneratedOnAdd();
             modelBuilder.Entity<Drama>()
                 .Property(d => d.ImageSource)
                 .IsRequired();
