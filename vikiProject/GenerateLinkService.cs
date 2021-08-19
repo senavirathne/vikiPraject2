@@ -55,8 +55,7 @@ namespace vikiProject
                     await e.Request.ContinueAsync();
                 }
             };
-
-            var xx = browser.IsConnected;
+            
             try
             {
                 await page.GoToAsync(url.String);
@@ -81,7 +80,7 @@ namespace vikiProject
             return await new StreamReader(stream).ReadToEndAsync();
         }
 
-        public async Task<TupleDto> GetMpd2()
+        public async Task<TwoStringDto> GetMpd2()
         {
             var xml1 = await GetMpd(Link);
 
@@ -94,10 +93,14 @@ namespace vikiProject
                
                 var regexValue = regex[0].Value;
                 var xml2 = await GetMpd(regexValue[9..^10]);
-                return new TupleDto((regex2[..^1],xml2));
+                
+                
+                
+                return new TwoStringDto(regex2[..^1], xml2);
             }
 
-            return new TupleDto(("",xml1));
+            
+            return new TwoStringDto("", xml1);
         }
     }
 

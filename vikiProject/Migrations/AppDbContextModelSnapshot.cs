@@ -22,94 +22,88 @@ namespace vikiProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("AddedTime")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("DramaId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("AudioLink")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("EpisodeDramaId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("VideoLink")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("EpisodeDramaId1")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EpisodeNumber1")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EpisodeNumber2")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.ToTable("DownloadLink");
+                    b.HasIndex("EpisodeNumber1", "EpisodeDramaId");
+
+                    b.HasIndex("EpisodeNumber2", "EpisodeDramaId1");
+
+                    b.ToTable("DownloadLinks");
                 });
 
             modelBuilder.Entity("vikiProject.Models.Drama", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("DramaId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ImageSource")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MainName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("NoOfEpisodes")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.HasKey("DramaId");
 
                     b.ToTable("Dramas");
                 });
 
             modelBuilder.Entity("vikiProject.Models.Episode", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DownloadLinkId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("DramaId")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("EpisodeSource")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("DramaId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("ImageSource")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DownloadLinkId");
+                    b.HasKey("EpisodeNumber", "DramaId");
 
                     b.HasIndex("DramaId");
 
                     b.ToTable("Episodes");
                 });
 
+            modelBuilder.Entity("vikiProject.Models.DownloadLink", b =>
+                {
+                    b.HasOne("vikiProject.Models.Episode", null)
+                        .WithMany("DownloadLinks")
+                        .HasForeignKey("EpisodeNumber1", "EpisodeDramaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("vikiProject.Models.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeNumber2", "EpisodeDramaId1");
+
+                    b.Navigation("Episode");
+                });
+
             modelBuilder.Entity("vikiProject.Models.Episode", b =>
                 {
-                    b.HasOne("vikiProject.Models.DownloadLink", "DownloadLink")
-                        .WithMany()
-                        .HasForeignKey("DownloadLinkId");
-
-                    b.HasOne("vikiProject.Models.Drama", "Drama")
+                    b.HasOne("vikiProject.Models.Drama", null)
                         .WithMany("Episodes")
                         .HasForeignKey("DramaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("DownloadLink");
-
-                    b.Navigation("Drama");
                 });
 
             modelBuilder.Entity("vikiProject.Models.Drama", b =>
                 {
                     b.Navigation("Episodes");
+                });
+
+            modelBuilder.Entity("vikiProject.Models.Episode", b =>
+                {
+                    b.Navigation("DownloadLinks");
                 });
 #pragma warning restore 612, 618
         }
