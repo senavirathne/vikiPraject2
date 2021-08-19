@@ -7,15 +7,14 @@ namespace vikiProject.Models
 {
     public class Episode
     {
-        [Required] public int EpisodeNumber { get; }
+        public int EpisodeNumber { get; }
 
-        [Required] public string ImageSource { get; }
+         public string ImageSource { get; }
 
-        [Required] public string EpisodeSource { get; }
+       public string EpisodeSource { get; }
 
         public List<DownloadLink> DownloadLinks { get; set; }
-        
-       
+        public Drama Drama { get; set; }
         public int DramaId { get; set; }
 
         public Episode()

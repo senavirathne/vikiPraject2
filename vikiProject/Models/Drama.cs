@@ -11,12 +11,12 @@ namespace vikiProject.Models
         [Key]
         public int DramaId { get; set; }
 
-        [Required] public string ImageSource { get; }
+         public string ImageSource { get; }
 
-        [Required] public string MainName { get;  } // @ todo set name to p.Key
+     public string MainName { get;  } // @ todo set name to p.Key
 
         // public List<string> OtherNames { get; set; }
-        [Required] public int NoOfEpisodes { get; }
+         public int NoOfEpisodes { get; }
 
 
         // public int Priority { get; set; }

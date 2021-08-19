@@ -47,7 +47,8 @@ namespace vikiProject
                     var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
                     var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
                     var episodeSource = jObject["response"][i]["url"]["web"].ToString();
-                    var episode = await AddEpisode(episodeNumber, episodeSource, episodeImageSource, drama);
+                    // var episode = await AddEpisode
+                    var episode = new Episode(episodeNumber,episodeImageSource,episodeSource);
                     episodes.Add(episode);
                 }
 
