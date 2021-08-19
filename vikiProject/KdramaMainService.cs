@@ -15,6 +15,7 @@ namespace vikiProject
         private readonly AppDbContext _dbContext;
         private readonly AddDramaService _addDramaService;
         private readonly GenerateLinkService _generateLinkService;
+        private readonly int[] _qualities = {240, 360, 480, 720, 1080};
 
         public KdramaMainService(AppDbContext dbContext, AddDramaService addDramaService,
             GenerateLinkService generateLinkService)
@@ -25,7 +26,7 @@ namespace vikiProject
         }
 
 
-        public async Task<bool> AddDrama(string code)
+        public async Task<bool> AddDrama(string code) // check drama exits todo
         {
             var jObject = (await _addDramaService.GetDramaDetails(code)).JObject; // todo 
 
@@ -38,22 +39,33 @@ namespace vikiProject
                     int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
 
 
-                
-                
                 var episodes = new List<Episode>();
+
+
                 for (var i = 0; i < noOfEpisodes; i++)
                 {
+                    var links = new List<DownloadLink>();
+                    foreach (var qValue in _qualities)
+                    {
+                        
+                        var link = new DownloadLink((Quality) qValue);
+                        links.Add(link);
+                    }
+
                     var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
                     var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
                     var episodeSource = jObject["response"][i]["url"]["web"].ToString();
                     // var episode = await AddEpisode
-                    var episode = new Episode(episodeNumber,episodeImageSource,episodeSource);
+                    var episode = new Episode(episodeNumber, episodeImageSource, episodeSource)
+                    {
+                        DownloadLinks = links
+                    };
                     episodes.Add(episode);
                 }
 
                 var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
                 await _dbContext.Dramas.AddAsync(drama);
-                
+
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
@@ -166,29 +178,25 @@ namespace vikiProject
             return null; //return error @todo
         }
 
-        private async Task<Episode> GetEpisode(string name, int number)
+        private Episode GetEpisode(string name, int number)
         {
-            var ss = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == name);
-            var dd = ss.Episodes.FirstOrDefault(e => e.EpisodeNumber == number);
+            var episode = _dbContext.Episodes.Where(e => e.Drama.MainName == name)
+                .FirstOrDefault(e => e.EpisodeNumber == number);
 
-            return dd;
-
-            return (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == name))
-                .Episodes.FirstOrDefault(e => e.EpisodeNumber == number);
+            return episode;
         }
 
         public async Task<bool> AddDownloadLink(StringIntegerDto dramaEpNo)
         {
-            var episode = await GetEpisode(dramaEpNo.String, dramaEpNo.Number);
+            var episode = GetEpisode(dramaEpNo.String, dramaEpNo.Number);
             await _generateLinkService.GetManifest(
                 new StringDto(episode.EpisodeSource));
-            var xmlAndPrefix = await _generateLinkService.GetMpd2();
-            int[] qualities = {240, 360, 480, 720, 1080};
-            var list = new List<DownloadLink>();
-            foreach (var qValue in qualities)
+            var xmlAndPrefixOfLinks = await _generateLinkService.GetMpd2();
+
+            foreach (var qValue in _qualities)
             {
                 var pattern = $"<BaseURL>.+{qValue}p.+" + @"<\/BaseURL>";
-                var regex = new Regex(pattern).Matches(xmlAndPrefix.String2);
+                var regex = new Regex(pattern).Matches(xmlAndPrefixOfLinks.String2);
                 if (regex.Count == 2)
                 {
                     var vLink = "";
@@ -198,24 +206,23 @@ namespace vikiProject
                     {
                         //attach & strip & send to db
 
-                        vLink = xmlAndPrefix.String1 + regex[0].Value[9..^10];
+                        vLink = xmlAndPrefixOfLinks.String1 + regex[0].Value[9..^10];
+                        aLink = xmlAndPrefixOfLinks.String1 + regex[1].Value[9..^10];
                     }
                     else
                     {
-                        aLink = xmlAndPrefix.String1 + regex[1].Value[9..^10];
+                        vLink = xmlAndPrefixOfLinks.String1 + regex[1].Value[9..^10];
+                        aLink = xmlAndPrefixOfLinks.String1 + regex[0].Value[9..^10];
                     }
 
 
-                    var link = new DownloadLink(aLink, vLink, (Quality) qValue);
-
-                    list.Add(link);
+                    await SetEpisodeDownloadlink((Quality) qValue, episode, aLink, vLink);
                 }
             }
 
-            await SetEpisodeDownloadlinks(dramaEpNo.String, dramaEpNo.Number, list);
 
-
-            return false;
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<TwoStringDto> GetEpisodeDownloadlinks(GetDownloadLinkDto getLink)
@@ -234,16 +241,18 @@ namespace vikiProject
             return null; // todo
         }
 
-        private async Task<bool> SetEpisodeDownloadlinks(string name, int number, List<DownloadLink> list)
+        private async Task<bool> SetEpisodeDownloadlink(Quality quality, Episode episode, string audioLink,
+            string videoLink)
         {
-            var episode =
-                (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == name))
-                .Episodes.FirstOrDefault(e => e.EpisodeNumber == number);
-            if (episode != null)
+            var link = await _dbContext.DownloadLinks.Where(l => l.Episode == episode)
+                .FirstOrDefaultAsync(l => l.Quality == quality);
+            if (link != null)
             {
-                episode.DownloadLinks = list;
-                _dbContext.Episodes.Update(episode);
-                await _dbContext.SaveChangesAsync();
+                link.AddedTime = DateTime.Now; // utcs?? todo
+                link.AudioLink = audioLink;
+                link.VideoLink = videoLink;
+                _dbContext.DownloadLinks.Update(link);
+
                 return true;
             }
 

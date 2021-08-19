@@ -21,7 +21,7 @@ namespace vikiProject
         public async Task GetManifest(StringDto url)
         {
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions {Headless = false});
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions {Headless = false}); // set headless = true todo
 
             var page = await browser.NewPageAsync();
 

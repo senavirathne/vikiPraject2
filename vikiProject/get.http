@@ -1,5 +1,5 @@
 
-GET https://localhost:5001/2
+GET https://localhost:5001/
 
 
 Accept: application/json

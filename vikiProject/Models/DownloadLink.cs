@@ -18,24 +18,21 @@ namespace vikiProject.Models
 
     public class DownloadLink
     {
-        public string AudioLink { get; }
-        public string VideoLink { get; }
-        public Quality Quality { get; }
-        public DateTime AddedTime { get; }
-        public Episode Episode { get; set; }
-        public int EpisodeNumber { get; }
-        public int DramaId { get; set; }
-
         public DownloadLink()
         {
         }
 
-        public DownloadLink(string audioLink, string videoLink, Quality quality)
+        public DownloadLink(Quality quality)
         {
-            AddedTime = DateTime.Now; //todo utc?
-            AudioLink = audioLink;
-            VideoLink = videoLink;
             Quality = quality;
         }
+
+        public string AudioLink { get; set; }
+        public string VideoLink { get; set; }
+        public Quality Quality { get; }
+        public DateTime AddedTime { get; set; }
+        public Episode Episode { get; set; }
+        public int EpisodeNumber { get; set; }
+        public int DramaId { get; set; }
     }
 }

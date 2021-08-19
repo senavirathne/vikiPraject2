@@ -12,7 +12,7 @@ namespace vikiProject.Models
         public DbSet<Drama> Dramas { get; set; }
         public DbSet<Episode> Episodes { get; set; }
 
-        // public DbSet<DownloadLink> DownloadLinks { get; set; }
+        public DbSet<DownloadLink> DownloadLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +28,7 @@ namespace vikiProject.Models
                 .WithMany(d => d.Episodes)
                 .HasForeignKey(e => e.DramaId);
             modelBuilder.Entity<DownloadLink>()
-                .HasKey(d => new {d.DramaId, d.EpisodeNumber});
+                .HasKey(d => new {d.DramaId, d.EpisodeNumber,d.Quality});
             // base.OnModelCreating(modelBuilder);
             
             
@@ -47,6 +47,10 @@ namespace vikiProject.Models
             modelBuilder.Entity<Drama>()
                 .Property(d => d.MainName)
                 .IsRequired();
+            modelBuilder.Entity<Drama>()
+                .HasIndex(d => d.MainName)
+                .IsUnique();
+            
             
             //episodes
             modelBuilder.Entity<Episode>()
@@ -64,14 +68,14 @@ namespace vikiProject.Models
                 .Property(l => l.Quality)
                 .IsRequired();
             modelBuilder.Entity<DownloadLink>()
-                .Property(l => l.AddedTime)
-                .IsRequired();
+                .Property(l => l.AddedTime);
+                
             modelBuilder.Entity<DownloadLink>()
-                .Property(l => l.AudioLink)
-                .IsRequired();
+                .Property(l => l.AudioLink);
+
             modelBuilder.Entity<DownloadLink>()
-                .Property(l => l.VideoLink)
-                .IsRequired();
+                .Property(l => l.VideoLink);
+
         }
     }
 }
