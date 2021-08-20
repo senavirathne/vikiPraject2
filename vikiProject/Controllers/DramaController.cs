@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -23,11 +25,15 @@ namespace vikiProject.Controllers
         {
             const string drama = "playful kiss";
             var findDrama = await _addDramaService.GetDramaNameswithCodes(new StringDto(drama));
-            var addDrama = await _kdramaMainService.AddDrama(new StringDto(findDrama[0].code));
-            if (!addDrama)
-            {
-                return NotFound();
-            }
+          // await  _addDramaService.GetDramaDetailsAsJObject(new StringDto(findDrama[0].code));
+           // var x = Stopwatch.StartNew();
+            var addDrama = await _kdramaMainService.AddDramaFromJObject(new StringDto(findDrama[0].code));
+            // Console.WriteLine("fuck xxx" + x.ElapsedMilliseconds);
+            
+            // if (!addDrama)
+            // {
+            //     return NotFound();
+            // }
 
             var response = new JsonResult(new { })
             {

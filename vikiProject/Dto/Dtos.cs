@@ -6,7 +6,8 @@ using vikiProject.Models;
 namespace vikiProject.Dto
 
 {
-    public record JsonDto(JObject JObject);
+    // public record JsonDto(JObject JObject);
+    public record JsonDto(Json JObject);
 
 
     // public record UpdateDramaDto(string DramaName,int NoOfEpisodes, string ImageSource);

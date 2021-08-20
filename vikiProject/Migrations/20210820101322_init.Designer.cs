@@ -9,7 +9,7 @@ using vikiProject.Models;
 namespace vikiProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210819180627_init")]
+    [Migration("20210820101322_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,9 +63,6 @@ namespace vikiProject.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("DramaId");
-
-                    b.HasIndex("MainName")
-                        .IsUnique();
 
                     b.ToTable("Dramas");
                 });

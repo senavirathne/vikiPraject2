@@ -47,9 +47,9 @@ namespace vikiProject.Models
             modelBuilder.Entity<Drama>()
                 .Property(d => d.MainName)
                 .IsRequired();
-            modelBuilder.Entity<Drama>()
-                .HasIndex(d => d.MainName)
-                .IsUnique();
+            // modelBuilder.Entity<Drama>()
+            //     .HasIndex(d => d.MainName);
+                // .IsUnique(); todo
             
             
             //episodes

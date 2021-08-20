@@ -62,9 +62,6 @@ namespace vikiProject.Migrations
 
                     b.HasKey("DramaId");
 
-                    b.HasIndex("MainName")
-                        .IsUnique();
-
                     b.ToTable("Dramas");
                 });
 

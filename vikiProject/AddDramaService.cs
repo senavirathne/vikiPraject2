@@ -1,16 +1,16 @@
-using System;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading;
+
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+
 using vikiProject.Dto;
 using vikiProject.Models;
+
 
 
 namespace vikiProject
@@ -73,10 +73,10 @@ namespace vikiProject
 
         
 
-        public async Task<JsonDto> GetDramaDetailsAsJObject(string code)
+        public async Task<JsonDto> GetDramaDetailsAsJObject(StringDto code)
         {
             var uri =
-                $"https://api.viki.io/v4/containers/{code}c/episodes.json?token=undefined&direction=asc&blocked=false&only_ids=false&per_page={Constants.PerPage}&app=100000a";
+                $"https://api.viki.io/v4/containers/{code.String}c/episodes.json?token=undefined&direction=asc&blocked=false&only_ids=false&per_page={Constants.PerPage}&app=100000a";
             var request = (HttpWebRequest) WebRequest.Create(uri);
             request.UserAgent = Constants.UserAgent;
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -84,8 +84,12 @@ namespace vikiProject
             using var response = (HttpWebResponse) await request.GetResponseAsync(); // todo use http client
             await using var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream).ReadToEndAsync();
+            return new JsonDto(JsonSerializer.Deserialize<Json>(await reader));
+
             
-            return new JsonDto(JObject.Parse(await reader));
+            // return new JsonDto(JObject.Parse(await reader));
         }
     }
+
+    
 }
