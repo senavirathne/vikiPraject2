@@ -22,8 +22,8 @@ namespace vikiProject.Controllers
         public async Task<IActionResult> Get()
         {
             const string drama = "playful kiss";
-            var findDrama = await _addDramaService.GetDramaNameswithCodes(drama);
-            var addDrama = await _kdramaMainService.AddDrama(findDrama[0].code);
+            var findDrama = await _addDramaService.GetDramaNameswithCodes(new StringDto(drama));
+            var addDrama = await _kdramaMainService.AddDrama(new StringDto(findDrama[0].code));
             if (!addDrama)
             {
                 return NotFound();

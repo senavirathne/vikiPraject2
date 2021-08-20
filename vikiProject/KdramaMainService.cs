@@ -26,45 +26,155 @@ namespace vikiProject
         }
 
 
-        public async Task<bool> AddDrama(string code) // check drama exits todo
+        // public async Task<bool> AddDrama(string code) // check drama exits todo
+        // {
+        // var jObject = (await _addDramaService.GetDramaDetails(code)).JObject;
+        // var json = (await _addDramaService.GetDramaDetailsFromString(code)).String;// todo 
+
+
+        // if (jObject != null)
+        // {
+        //     var dramaName = jObject["response"][0]["container"]["titles"]["hi"].ToString();
+        //     var dramaImageSource = jObject["response"][0]["container"]["images"]["poster"]["url"].ToString();
+        //     var noOfEpisodes =
+        //         int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
+        //
+        //
+        //     var episodes = new List<Episode>();
+        //
+        //
+        //     for (var i = 0; i < noOfEpisodes; i++)
+        //     {
+        //         var links = new List<DownloadLink>();
+        //         foreach (var qValue in _qualities)
+        //         {
+        //             
+        //             var link = new DownloadLink((Quality) qValue);
+        //             links.Add(link);
+        //         }
+        //
+        //         var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
+        //         var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
+        //         var episodeSource = jObject["response"][i]["url"]["web"].ToString();
+        //          
+        //         var episode = new Episode(episodeNumber, episodeImageSource, episodeSource)
+        //         {
+        //             DownloadLinks = links
+        //         };
+        //         episodes.Add(episode);
+        //     }
+        //
+        //     var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
+        //     await _dbContext.Dramas.AddAsync(drama);
+        //
+        //     await _dbContext.SaveChangesAsync();
+        //     return true;
+        // }
+        // if (json != null)
+        // {
+        //     var dramaName = jObject["response"][0]["container"]["titles"]["hi"].ToString();
+        //     var dramaImageSource = jObject["response"][0]["container"]["images"]["poster"]["url"].ToString();
+        //     var noOfEpisodes =
+        //         int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
+        //
+        //
+        //     var episodes = new List<Episode>();
+        //
+        //
+        //     for (var i = 0; i < noOfEpisodes; i++)
+        //     {
+        //         var links = new List<DownloadLink>();
+        //         foreach (var qValue in _qualities)
+        //         {
+        //             
+        //             var link = new DownloadLink((Quality) qValue);
+        //             links.Add(link);
+        //         }
+        //
+        //         var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
+        //         var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
+        //         var episodeSource = jObject["response"][i]["url"]["web"].ToString();
+        //          
+        //         var episode = new Episode(episodeNumber, episodeImageSource, episodeSource)
+        //         {
+        //             DownloadLinks = links
+        //         };
+        //         episodes.Add(episode);
+        //     }
+        //
+        //     var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
+        //     await _dbContext.Dramas.AddAsync(drama);
+        //
+        //     await _dbContext.SaveChangesAsync();
+        //     return true;
+        // }
+        //
+        // return false;
+        // }
+        private void AddEpisodeToList(List<Episode> episodes, string findEpisodesPattern, string dramaDetails,
+            string episodeNumberPattern, string episodePathPattern, string episodeImageSourcePattern)
         {
-            var jObject = (await _addDramaService.GetDramaDetails(code)).JObject; // todo 
+            var episodeString =
+                new Regex(findEpisodesPattern).Match(dramaDetails).Value; // need only to change value todo
 
+            var episodeNumber = int.Parse(new Regex(episodeNumberPattern).Match(episodeString).Value[9..]);
 
-            if (jObject != null)
+            var episodeSource =
+                new Regex(episodePathPattern).Match(episodeString).Value[8..]; // need only to change value todo
+            var episodeImageSource =
+                new Regex(episodeImageSourcePattern).Match(episodeString)
+                    .Value[34..]; // need only to change value todo
+
+            var links = new List<DownloadLink>();
+            foreach (var qValue in _qualities)
             {
-                var dramaName = jObject["response"][0]["container"]["titles"]["hi"].ToString();
-                var dramaImageSource = jObject["response"][0]["container"]["images"]["poster"]["url"].ToString();
-                var noOfEpisodes =
-                    int.Parse(jObject["response"][0]["container"]["planned_episodes"].ToString()); // todo 
+                var link = new DownloadLink((Quality) qValue);
+                links.Add(link);
+            }
 
+            var episode = new Episode(episodeNumber, episodeImageSource, episodeSource)
+            {
+                DownloadLinks = links
+            };
+            episodes.Add(episode);
+        }
+
+        public async Task<bool> AddDrama(StringDto code)
+        {
+            var dramaDetails = (await _addDramaService.GetDramaDetailsAsString(code)).String;
+
+            if (dramaDetails != null)
+            {
+                const string findEpisode1Pattern = ",\"number\":1,\".+,\"number\":2,\"";
+                var episode1 = new Regex(findEpisode1Pattern).Match(dramaDetails);
+
+
+                const string dramaNamePattern = "hi\":\"[\\w|\\s]+";
+                const string dramaImageSourcePattern =
+                    "json\"}}],\"images\":{\"poster\":{\"url\":\"https:\\/\\/[\\/|\\.|\\w|\\d\\&\\?\\=]+";
+                const string noOfEpisodesPattern = "\"planned_episodes\":\\d+";
+
+                const string episodeImageSourcePattern =
+                    "\"viki\",\"images\":{\"poster\":{\"url\":\"https:\\/\\/[\\/|\\.|\\w|\\d\\&\\?\\=]+";
+                const string episodePathPattern = ",\"web\":\"https:\\/\\/www\\.viki\\.com\\/videos\\/[\\d|\\w-]+";
+                const string episodeNumberPattern = "\"number\":\\d+";
+
+                var dramaName = new Regex(dramaNamePattern).Match(episode1.Value).Value[5..];
+                var dramaImageSource = new Regex(dramaImageSourcePattern).Match(episode1.Value).Value[36..];
+                var noOfEpisodes = int.Parse(new Regex(noOfEpisodesPattern).Match(episode1.Value).Value[19..]);
 
                 var episodes = new List<Episode>();
+                AddEpisodeToList(episodes,findEpisode1Pattern,dramaDetails,episodeNumberPattern,episodePathPattern,episodeImageSourcePattern);
 
-
-                for (var i = 0; i < noOfEpisodes; i++)
+                for (int i = 2; i < noOfEpisodes; i++)
                 {
-                    var links = new List<DownloadLink>();
-                    foreach (var qValue in _qualities)
-                    {
-                        
-                        var link = new DownloadLink((Quality) qValue);
-                        links.Add(link);
-                    }
-
-                    var episodeNumber = int.Parse(jObject["response"][i]["number"].ToString());
-                    var episodeImageSource = jObject["response"][i]["images"]["poster"]["url"].ToString();
-                    var episodeSource = jObject["response"][i]["url"]["web"].ToString();
-                    // var episode = await AddEpisode
-                    var episode = new Episode(episodeNumber, episodeImageSource, episodeSource)
-                    {
-                        DownloadLinks = links
-                    };
-                    episodes.Add(episode);
+                    var findEpisodesPattern = $",\"number\":{i},\".+,\"number\":{i + 1},\""; // todo epi No 0
+                    AddEpisodeToList(episodes,findEpisodesPattern,dramaDetails,episodeNumberPattern,episodePathPattern,episodeImageSourcePattern);
                 }
+                AddEpisodeToList(episodes,",\"number\":16,\".+",dramaDetails,episodeNumberPattern,episodePathPattern,episodeImageSourcePattern);
 
                 var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
-                await _dbContext.Dramas.AddAsync(drama);
+                await _dbContext.Dramas.AddAsync(drama); //todo check drama exits
 
                 await _dbContext.SaveChangesAsync();
                 return true;
@@ -74,23 +184,6 @@ namespace vikiProject
         }
 
         #region MyRegion
-
-        // public async Task<bool> UpdateDrama(UpdateDramaDto dramaDto)
-        // {
-        //     var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaDto.DramaName);
-        //     if (drama != null)
-        //     {
-        //         drama.ImageSource = dramaDto.ImageSource;
-        //         drama.NoOfEpisodes = dramaDto.NoOfEpisodes;
-        //
-        //         // await _dbContext.Dramas.AddAsync(drama);
-        //         await _dbContext.SaveChangesAsync();
-        //         return true;
-        //     }
-        //
-        //     return false;
-        // }
-
 
         // public async Task<bool> SetOtherNames(SetDramaNameDto dramaName)
         // {
@@ -108,14 +201,14 @@ namespace vikiProject
 
         #endregion
 
-        private async Task<Episode> AddEpisode(int episodeNumber, string episodeSource, string imageSource, Drama drama)
-        {
-            var episode = new Episode(episodeNumber, imageSource, episodeSource);
-
-            await _dbContext.Episodes.AddAsync(episode);
-
-            return episode;
-        }
+        // private async Task<Episode> AddEpisode(int episodeNumber, string episodeSource, string imageSource, Drama drama)
+        // {
+        //     var episode = new Episode(episodeNumber, imageSource, episodeSource);
+        //
+        //     await _dbContext.Episodes.AddAsync(episode);
+        //
+        //     return episode;
+        // }
 
         public async Task<IEnumerable<StringDto>> SearchDramaName(StringDto searchTerm)
         {
