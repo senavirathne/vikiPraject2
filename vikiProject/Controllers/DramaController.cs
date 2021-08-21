@@ -8,7 +8,7 @@ using vikiProject.Dto;
 namespace vikiProject.Controllers
 {
     [ApiController]
-    [Route("/")]
+    [Route("/cont")]
     public class DramaController : Controller
     {
         private readonly KdramaMainService _kdramaMainService;

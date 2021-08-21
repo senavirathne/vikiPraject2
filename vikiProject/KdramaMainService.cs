@@ -155,14 +155,7 @@ namespace vikiProject
 
         #endregion
 
-        // private async Task<Episode> AddEpisode(int episodeNumber, string episodeSource, string imageSource, Drama drama)
-        // {
-        //     var episode = new Episode(episodeNumber, imageSource, episodeSource);
-        //
-        //     await _dbContext.Episodes.AddAsync(episode);
-        //
-        //     return episode;
-        // }
+        
 
         public async Task<IEnumerable<StringDto>> SearchDramaName(StringDto searchTerm)
         {
@@ -236,8 +229,15 @@ namespace vikiProject
         public async Task<bool> AddDownloadLink(StringIntegerDto dramaEpNo)
         {
             var episode = GetEpisode(dramaEpNo.String, dramaEpNo.Number);
-            await _generateLinkService.GetManifest(
-                new StringDto(episode.EpisodeSource));
+            try
+            {
+                await _generateLinkService.GetManifest(new StringDto(episode.EpisodeSource));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;// todo
+            }
             var xmlAndPrefixOfLinks = await _generateLinkService.GetMpd2();
 
             foreach (var qValue in _qualities)

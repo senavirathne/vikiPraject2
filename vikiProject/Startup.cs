@@ -28,7 +28,10 @@ namespace vikiProject
             services.AddTransient<AddDramaService>();
             services.AddTransient<KdramaMainService>();
             services.AddTransient<GenerateLinkService>();
-            services.AddControllers();
+            // services.AddControllers();
+            services.AddControllersWithViews();
+
+
             
         }
 

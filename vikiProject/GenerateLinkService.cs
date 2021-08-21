@@ -21,7 +21,7 @@ namespace vikiProject
         public async Task GetManifest(StringDto url)
         {
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions {Headless = false}); // set headless = true todo
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions {Headless = false}); // set headless = true todo add try catch
 
             var page = await browser.NewPageAsync();
 
@@ -64,10 +64,7 @@ namespace vikiProject
             {
                 Console.WriteLine("NavigationExceptionOccured");
             }
-            catch (TargetClosedException e)
-            {
-                Console.WriteLine("TargetClosedExceptionOccured");
-            }
+            
         }
 
         private static async Task<String> GetMpd(string link) // xml file includes another mpd file
