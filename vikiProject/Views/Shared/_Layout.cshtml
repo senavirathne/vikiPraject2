@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width" />
+    <link href =""
     <title>@ViewData["Title"]</title>
 </head>
 <body>
+<nav class="navbar">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a asp-action="index" asp-controller="home" class="nav-link">List</a>
+        </li>
+    </ul>
+</nav>
 
 @RenderBody()
 

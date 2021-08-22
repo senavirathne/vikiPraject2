@@ -70,12 +70,6 @@ namespace vikiProject.Migrations
                 columns: new[] { "EpisodeNumber", "DramaId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Dramas_MainName",
-                table: "Dramas",
-                column: "MainName",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Episodes_DramaId",
                 table: "Episodes",
                 column: "DramaId");

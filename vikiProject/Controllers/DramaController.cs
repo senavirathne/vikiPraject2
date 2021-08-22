@@ -25,15 +25,12 @@ namespace vikiProject.Controllers
         {
             const string drama = "playful kiss";
             var findDrama = await _addDramaService.GetDramaNameswithCodes(new StringDto(drama));
-          // await  _addDramaService.GetDramaDetailsAsJObject(new StringDto(findDrama[0].code));
-           // var x = Stopwatch.StartNew();
             var addDrama = await _kdramaMainService.AddDramaFromJObject(new StringDto(findDrama[0].code));
-            // Console.WriteLine("fuck xxx" + x.ElapsedMilliseconds);
             
-            // if (!addDrama)
-            // {
-            //     return NotFound();
-            // }
+            if (!addDrama)
+            {
+                return NotFound();
+            }
 
             var response = new JsonResult(new { })
             {

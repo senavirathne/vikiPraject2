@@ -1,16 +1,12 @@
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-
 using System.Threading.Tasks;
-
 using vikiProject.Dto;
 using vikiProject.Models;
-
 
 
 namespace vikiProject
@@ -68,10 +64,10 @@ namespace vikiProject
             await using var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream).ReadToEndAsync();
             return new StringDto(await reader);
-           
         }
 
         
+
 
         public async Task<JsonDto> GetDramaDetailsAsJObject(StringDto code)
         {
@@ -86,10 +82,8 @@ namespace vikiProject
             using var reader = new StreamReader(stream).ReadToEndAsync();
             return new JsonDto(JsonSerializer.Deserialize<Json>(await reader));
 
-            
+
             // return new JsonDto(JObject.Parse(await reader));
         }
     }
-
-    
 }

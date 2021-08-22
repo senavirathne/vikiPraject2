@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace vikiProject.Controllers
@@ -10,6 +11,7 @@ namespace vikiProject.Controllers
         // GET
         [HttpGet]
         [Route("/")]
+
         public IActionResult Index()
         {
             return View();
@@ -19,6 +21,21 @@ namespace vikiProject.Controllers
         public IActionResult Episodes()
         {
             return View();
+        }
+        [HttpGet]
+        [Route("{searchTerm}")]
+        public IActionResult AddDrama(string searchTerm = "")
+        {
+            List<drmaName> drmaNames;
+            if (!string.IsNullOrEmpty(searchTerm) )
+            {
+                // drmaNames = //from db .tolist
+                
+                
+            }
+
+            // Redirect(Index());
+             return View(drmaNames);
         }
     }
 }

@@ -6,3 +6,11 @@
 }
 
 <h2>Home</h2>
+<form asp-controller="Home" asp-action="Adddrama">
+    <span class="btn-group">
+        <input class="form-control" type="text" name="SearchText" placeholder="Search Drama"/>
+        <dev class="input-group-append">
+            <input class="p-1 ml-2 btn btn-sm btn-info" type="submit" value="Search"/>
+        </dev>
+    </span>
+</form>
