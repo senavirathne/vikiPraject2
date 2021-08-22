@@ -9,9 +9,9 @@ namespace vikiProject.Models
     {
         public int EpisodeNumber { get; }
 
-         public string ImageSource { get; }
+        public string ImageSource { get; }
 
-       public string EpisodeSource { get; }
+        public string EpisodeSource { get; }
 
         public List<DownloadLink> DownloadLinks { get; set; }
         public Drama Drama { get; set; }
@@ -24,7 +24,6 @@ namespace vikiProject.Models
         public Episode(int episodeNumber, string imageSource, string episodeSource)
         {
             EpisodeNumber = episodeNumber;
-
             ImageSource = imageSource;
             EpisodeSource = episodeSource;
         }

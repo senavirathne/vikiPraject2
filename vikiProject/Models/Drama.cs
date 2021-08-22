@@ -8,7 +8,7 @@ namespace vikiProject.Models
     public class Drama
     {
         
-        public int DramaId { get; set; }
+        public int DramaId { get;  }
 
          public string ImageSource { get; }
 
@@ -20,17 +20,18 @@ namespace vikiProject.Models
 
         // public int Priority { get; set; }
         public List<Episode> Episodes { get; set; } = new();
+        public List<OtherName> OtherNames { get; set; } = new();
 
-        public Drama()
+        public Drama(int dramaId)
         {
-            
+            DramaId = dramaId;
         }
-        public Drama(string imageSource, string mainName, int noOfEpisodes)
+        public Drama(string imageSource, string mainName, int noOfEpisodes, int dramaId)
         {
             ImageSource = imageSource;
             MainName = mainName;
             NoOfEpisodes = noOfEpisodes;
-           
+            DramaId = dramaId;
         }
     }
 }

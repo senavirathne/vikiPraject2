@@ -88,6 +88,26 @@ namespace vikiProject.Migrations
                     b.ToTable("Episodes");
                 });
 
+            modelBuilder.Entity("vikiProject.Models.OtherName", b =>
+                {
+                    b.Property<int>("NameId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DramaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("NameId");
+
+                    b.HasIndex("DramaId");
+
+                    b.ToTable("OtherNames");
+                });
+
             modelBuilder.Entity("vikiProject.Models.DownloadLink", b =>
                 {
                     b.HasOne("vikiProject.Models.Episode", "Episode")
@@ -110,9 +130,22 @@ namespace vikiProject.Migrations
                     b.Navigation("Drama");
                 });
 
+            modelBuilder.Entity("vikiProject.Models.OtherName", b =>
+                {
+                    b.HasOne("vikiProject.Models.Drama", "Drama")
+                        .WithMany("OtherNames")
+                        .HasForeignKey("DramaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Drama");
+                });
+
             modelBuilder.Entity("vikiProject.Models.Drama", b =>
                 {
                     b.Navigation("Episodes");
+
+                    b.Navigation("OtherNames");
                 });
 
             modelBuilder.Entity("vikiProject.Models.Episode", b =>

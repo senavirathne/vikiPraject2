@@ -34,17 +34,17 @@ namespace vikiProject
         }
 
 // user search on search bar todo add drama name to other names
-        public async Task<List<(string code, string name)>> GetDramaNameswithCodes(StringDto drama)
+        public async Task<List<(int code, string name)>> GetDramaNameswithCodes(StringDto drama)
         {
             var dramaList = await GetDrama(drama.String);
             var regex = new Regex(@"\d+c-[-|\w]+");
-            var list = new List<(string, string)>();
+            var list = new List<(int, string)>();
             foreach (var d in dramaList)
             {
                 if (regex.Matches(d).Count == 1)
                 {
                     var x = d.Split("c-");
-                    list.Add((x[0], x[1].Replace("-", " ")));
+                    list.Add((int.Parse(x[0]), x[1].Replace("-", " ")));
                 }
             }
 
@@ -69,10 +69,10 @@ namespace vikiProject
         
 
 
-        public async Task<JsonDto> GetDramaDetailsAsJObject(StringDto code)
+        public async Task<JsonDto> GetDramaDetailsAsJObject(IntegerDto code)
         {
             var uri =
-                $"https://api.viki.io/v4/containers/{code.String}c/episodes.json?token=undefined&direction=asc&blocked=false&only_ids=false&per_page={Constants.PerPage}&app=100000a";
+                $"https://api.viki.io/v4/containers/{code.Number}c/episodes.json?token=undefined&direction=asc&blocked=false&only_ids=false&per_page={Constants.PerPage}&app=100000a";
             var request = (HttpWebRequest) WebRequest.Create(uri);
             request.UserAgent = Constants.UserAgent;
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;

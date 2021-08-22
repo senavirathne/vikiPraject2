@@ -16,7 +16,8 @@ namespace vikiProject
 {
     public class GenerateLinkService
     {
-        public string Link { get; set; }
+        public string Link { get; set; }  //todo this can be override when multiple access creat object 
+        // create one browser and new pages for concurrent accesss
 
         public async Task GetManifest(StringDto url)
         {

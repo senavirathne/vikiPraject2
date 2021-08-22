@@ -8,7 +8,7 @@ using vikiProject.Dto;
 namespace vikiProject.Controllers
 {
     [ApiController]
-    [Route("/cont")]
+    [Route("/")]
     public class DramaController : Controller
     {
         private readonly KdramaMainService _kdramaMainService;
@@ -23,9 +23,13 @@ namespace vikiProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            const string drama = "playful kiss";
+            const string drama = "playful kiss";//search value
             var findDrama = await _addDramaService.GetDramaNameswithCodes(new StringDto(drama));
-            var addDrama = await _kdramaMainService.AddDramaFromJObject(new StringDto(findDrama[0].code));
+            //return view
+
+//todo don't check every where true use void
+// todo make new other name and add drama's other name list
+            var addDrama = await _kdramaMainService.AddDramaFromJObject(new StringIntegerDto(drama,findDrama[0].code));//code of selected one
             
             if (!addDrama)
             {

@@ -26,12 +26,26 @@ namespace vikiProject
         }
 
 
-        public async Task<bool> AddDramaFromJObject(StringDto code) // check drama exits todo
+      //  public async Task<bool> SetOtherNames(StringIntegerDto nameAndCode)// todo is this correct
+        // {
+        //     var otherName = new OtherName(nameAndCode.Number, nameAndCode.String);
+        //     
+        //     var status = await _dbContext.OtherNames.AddAsync(otherName);
+        //    
+        //     
+        //     
+        //         await _dbContext.SaveChangesAsync();
+        //         return true;
+        //    
+        // }
+
+        public async Task<bool> AddDramaFromJObject(StringIntegerDto codeAndName) // check drama exits todo
         {
-            var jObject = (await _addDramaService.GetDramaDetailsAsJObject(code)).JObject;
+            var jObject = (await _addDramaService.GetDramaDetailsAsJObject(new IntegerDto(codeAndName.Number))).JObject;
 
             if (jObject != null)
             {
+                var dramaId = codeAndName.Number;
                 var dramaName = jObject.response[0].container.titles.hi;
                 var dramaImageSource = jObject.response[0].container.images.poster.url;
                 var noOfEpisodes = jObject.response[0].container.planned_episodes;
@@ -51,9 +65,21 @@ namespace vikiProject
                     };
                     episodes.Add(episode);
                 }
+                
 
-                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
-                await _dbContext.Dramas.AddAsync(drama);
+                var otherNames = new List<OtherName>();
+                otherNames.Add(new OtherName(dramaId, dramaName));
+                otherNames.Add(new OtherName(dramaId, codeAndName.String));
+                
+                
+                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes, dramaId)
+                {
+                    Episodes = episodes,
+                    OtherNames = otherNames
+                };
+
+                await _dbContext.Dramas.AddAsync(drama); // check drma exits
+
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
@@ -95,6 +121,7 @@ namespace vikiProject
 
             if (dramaDetails != null)
             {
+                var dramaId = int.Parse(code.String);
                 const string findEpisode1Pattern = ",\"number\":1,\".+,\"number\":2,\"";
                 var episode1 = new Regex(findEpisode1Pattern).Match(dramaDetails);
 
@@ -127,9 +154,15 @@ namespace vikiProject
                 AddEpisodeToList(episodes, ",\"number\":16,\".+", dramaDetails, episodeNumberPattern,
                     episodePathPattern, episodeImageSourcePattern);
 
-                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes) {Episodes = episodes};
-                await _dbContext.Dramas.AddAsync(drama); //todo check drama exits
+                var otherNames = new List<OtherName>();
+                otherNames.Add(new OtherName(dramaId, dramaName));
+                var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes, dramaId)
+                {
+                    Episodes = episodes,
+                    OtherNames = otherNames
+                };
 
+                await _dbContext.Dramas.AddAsync(drama);
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
@@ -137,25 +170,6 @@ namespace vikiProject
             return false;
         }
 
-        #region MyRegion
-
-        // public async Task<bool> SetOtherNames(SetDramaNameDto dramaName)
-        // {
-        //     // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaName.MainName);
-        //     // if (drama != null)
-        //     // {
-        //     //     drama.OtherNames.Add(dramaName.OtherName);
-        //     //
-        //     //     await _dbContext.SaveChangesAsync();
-        //     //     return true;
-        //     // }
-        //     //
-        //     return false;
-        // } //todo
-
-        #endregion
-
-        
 
         public async Task<IEnumerable<StringDto>> SearchDramaName(StringDto searchTerm)
         {
@@ -210,7 +224,8 @@ namespace vikiProject
             {
                 // var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.Name == dramaEpNo.String);
 
-                return new StringDto((await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String))
+                return new StringDto(
+                    (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaEpNo.String))
                     .Episodes.FirstOrDefault(e => e.EpisodeNumber == dramaEpNo.Number)
                     ?.ImageSource);
             }
@@ -236,8 +251,9 @@ namespace vikiProject
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;// todo
+                throw; // todo
             }
+
             var xmlAndPrefixOfLinks = await _generateLinkService.GetMpd2();
 
             foreach (var qValue in _qualities)

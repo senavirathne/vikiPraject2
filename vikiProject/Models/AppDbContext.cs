@@ -11,12 +11,12 @@ namespace vikiProject.Models
 
         public DbSet<Drama> Dramas { get; set; }
         public DbSet<Episode> Episodes { get; set; }
+        public DbSet<OtherName> OtherNames { get; set; }
 
         public DbSet<DownloadLink> DownloadLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
             modelBuilder.Entity<Episode>()
                 .HasKey(e => new {e.EpisodeNumber, e.DramaId});
             modelBuilder.Entity<DownloadLink>()
@@ -28,16 +28,15 @@ namespace vikiProject.Models
                 .WithMany(d => d.Episodes)
                 .HasForeignKey(e => e.DramaId);
             modelBuilder.Entity<DownloadLink>()
-                .HasKey(d => new {d.DramaId, d.EpisodeNumber,d.Quality});
+                .HasKey(d => new {d.DramaId, d.EpisodeNumber, d.Quality});
             // base.OnModelCreating(modelBuilder);
-            
-            
+
+
             //drama
             modelBuilder.Entity<Drama>()
                 .HasKey(d => d.DramaId);
             modelBuilder.Entity<Drama>()
-                .Property(d => d.DramaId)
-                .ValueGeneratedOnAdd();
+                .Property(d => d.DramaId);
             modelBuilder.Entity<Drama>()
                 .Property(d => d.ImageSource)
                 .IsRequired();
@@ -49,33 +48,50 @@ namespace vikiProject.Models
                 .IsRequired();
             // modelBuilder.Entity<Drama>()
             //     .HasIndex(d => d.MainName);
-                // .IsUnique(); todo
-            
-            
+            // .IsUnique(); todo
+
+
             //episodes
             modelBuilder.Entity<Episode>()
-                .Property(e =>e.EpisodeNumber)
+                .Property(e => e.EpisodeNumber)
                 .IsRequired();
             modelBuilder.Entity<Episode>()
-                .Property(e =>e.EpisodeSource)
+                .Property(e => e.EpisodeSource)
                 .IsRequired();
             modelBuilder.Entity<Episode>()
-                .Property(e =>e.ImageSource)
+                .Property(e => e.ImageSource)
                 .IsRequired();
-            
+
             //downloadLinks
             modelBuilder.Entity<DownloadLink>()
                 .Property(l => l.Quality)
                 .IsRequired();
             modelBuilder.Entity<DownloadLink>()
                 .Property(l => l.AddedTime);
-                
+
             modelBuilder.Entity<DownloadLink>()
                 .Property(l => l.AudioLink);
 
             modelBuilder.Entity<DownloadLink>()
                 .Property(l => l.VideoLink);
 
+
+            //DramaNameWithCode
+            modelBuilder.Entity<OtherName>()
+                .HasKey(n => n.NameId);
+            modelBuilder.Entity<OtherName>()
+                .Property(n => n.NameId)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OtherName>()
+                .HasOne(n => n.Drama)
+                .WithMany(d => d.OtherNames)
+                .HasForeignKey(d => d.DramaId);
+            modelBuilder.Entity<OtherName>()
+                .Property(n => n.Name)
+                .IsRequired();
+            modelBuilder.Entity<OtherName>()
+                .Property(n => n.DramaId)
+                .IsRequired();
         }
     }
 }
