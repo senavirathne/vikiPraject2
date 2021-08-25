@@ -10,6 +10,7 @@ namespace vikiProject.Models
     public class Titles
     {
         public string hi { get; set; }
+        public string en { get; set; }
     }
 
 

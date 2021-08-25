@@ -21,6 +21,7 @@ namespace vikiProject.Models
         // public int Priority { get; set; }
         public List<Episode> Episodes { get; set; } = new();
         public List<OtherName> OtherNames { get; set; } = new();
+        
 
         public Drama(int dramaId)
         {

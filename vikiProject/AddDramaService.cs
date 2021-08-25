@@ -80,6 +80,7 @@ namespace vikiProject
             using var response = (HttpWebResponse) await request.GetResponseAsync(); // todo use http client
             await using var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream).ReadToEndAsync();
+            var x = await reader;
             return new JsonDto(JsonSerializer.Deserialize<Json>(await reader));
 
 

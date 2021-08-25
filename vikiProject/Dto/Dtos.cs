@@ -15,7 +15,8 @@ namespace vikiProject.Dto
     
     public record StringDto(string String);
 
-    public record TwoStringDto(string String1, string String2); //todo is it better to use tuple 
+    public record TwoStringDto(string String1, string String2);
+    public record TwointDto(int interger1, int interger2);//todo is it better to use tuple 
 
     public record SetDramaNameDto(string MainName, string OtherName);
 

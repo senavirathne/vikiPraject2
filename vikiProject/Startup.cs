@@ -24,7 +24,14 @@ namespace vikiProject
                 builder.UseSqlite( "Data Source=mydb.db");
 
             });
-            
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                // options.IdleTimeout = TimeSpan.FromSeconds(10);
+                // options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             services.AddTransient<AddDramaService>();
             services.AddTransient<KdramaMainService>();
             services.AddTransient<GenerateLinkService>();
@@ -44,7 +51,7 @@ namespace vikiProject
             }
             app.UseStaticFiles();
             app.UseRouting();
-
+            app.UseSession();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

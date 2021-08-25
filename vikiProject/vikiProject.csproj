@@ -146,4 +146,11 @@
       <None Include="wwwroot\lib\twitter-bootstrap\scss\_variables.scss" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\AddDrama.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Episodes.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_Layout.cshtml" />
+    </ItemGroup>
+
 </Project>

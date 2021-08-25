@@ -1,0 +1,26 @@
+
+@using Microsoft.AspNetCore.Http
+@model int
+
+
+@{
+    ViewBag.Title = "Episodes";
+    Layout = "_Layout";
+    var dId =Context.Session.GetInt32("dId");
+    var dramaName = Context.Session.GetString("dramaName");
+}
+
+<h2>Episodes</h2>
+<div class="list-group">
+    <a class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">Episodes</a>
+    
+
+    @{
+        for (var i = 1; i <= Model; i++)
+        {
+            <a href="/@dId/episode/@i" class="list-group-item list-group-item-action" aria-current="true">@dramaName Episode @i</a>
+        }
+
+    }
+    
+</div>

@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Http
+@model int
+
+@{
+    ViewBag.Title = "Episode";
+    Layout = "_Layout";
+    int[] qualities = {240, 360, 480, 720, 1080};
+}
+
+<h2>@Context.Session.GetString("dramaName") @Model</h2>
+<fieldset>
+    @* <label> *@
+    @*                     <input class="cb cb1" type="checkbox" name="240p" onclick="cbChange(this)" checked/> *@
+    @*                     <i></i> *@
+    @*                     <span>240P</span> *@
+    @*                 </label> *@
+    @{
+        for (var i = 0; i < qualities.Length; i++)
+        {
+            <label>
+                <input class="cb cb@(i + 1)" type="checkbox" name="@qualities[i]p" onclick="cbChange(this)"/>
+                <i></i>
+                <span>@(qualities[i])P</span>
+            </label>
+        }
+
+    }
+
+    @* <label> *@
+    @*     <input class="cb cb2" type="checkbox" name="work" onclick="cbChange(this)"/> *@
+    @*     <i></i> *@
+    @*     <span>Work</span> *@
+    @* </label> *@
+    @* <label> *@
+    @*     <input class="cb cb3" type="checkbox" name="sleep" onclick="cbChange(this)" checked/> *@
+    @*     <i></i> *@
+    @*     <span>Sleep</span> *@
+    @* </label> *@
+</fieldset>

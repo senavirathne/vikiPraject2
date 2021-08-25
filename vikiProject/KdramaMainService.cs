@@ -26,7 +26,7 @@ namespace vikiProject
         }
 
 
-      //  public async Task<bool> SetOtherNames(StringIntegerDto nameAndCode)// todo is this correct
+        //  public async Task<bool> SetOtherNames(StringIntegerDto nameAndCode)// todo is this correct
         // {
         //     var otherName = new OtherName(nameAndCode.Number, nameAndCode.String);
         //     
@@ -39,14 +39,14 @@ namespace vikiProject
         //    
         // }
 
-        public async Task<bool> AddDramaFromJObject(StringIntegerDto codeAndName) // check drama exits todo
+        public async Task<StringIntegerDto> AddDramaFromJObject(StringIntegerDto codeAndName) // check drama exits todo
         {
             var jObject = (await _addDramaService.GetDramaDetailsAsJObject(new IntegerDto(codeAndName.Number))).JObject;
 
             if (jObject != null)
             {
                 var dramaId = codeAndName.Number;
-                var dramaName = jObject.response[0].container.titles.hi;
+                var dramaName = jObject.response[0].container.titles.en ?? jObject.response[0].container.titles.hi;
                 var dramaImageSource = jObject.response[0].container.images.poster.url;
                 var noOfEpisodes = jObject.response[0].container.planned_episodes;
 
@@ -65,13 +65,13 @@ namespace vikiProject
                     };
                     episodes.Add(episode);
                 }
-                
+
 
                 var otherNames = new List<OtherName>();
                 otherNames.Add(new OtherName(dramaId, dramaName));
                 otherNames.Add(new OtherName(dramaId, codeAndName.String));
-                
-                
+
+
                 var drama = new Drama(dramaImageSource, dramaName, noOfEpisodes, dramaId)
                 {
                     Episodes = episodes,
@@ -81,10 +81,10 @@ namespace vikiProject
                 await _dbContext.Dramas.AddAsync(drama); // check drma exits
 
                 await _dbContext.SaveChangesAsync();
-                return true;
+                return (new StringIntegerDto(dramaName, noOfEpisodes));
             }
 
-            return false;
+            return null;
         }
 
         private void AddEpisodeToList(List<Episode> episodes, string findEpisodesPattern, string dramaDetails,
@@ -233,17 +233,17 @@ namespace vikiProject
             return null; //return error @todo
         }
 
-        private Episode GetEpisode(string name, int number)
+        private Episode GetEpisode(int id, int number)
         {
-            var episode = _dbContext.Episodes.Where(e => e.Drama.MainName == name)
+            var episode = _dbContext.Episodes.Where(e => e.Drama.DramaId == id)
                 .FirstOrDefault(e => e.EpisodeNumber == number);
 
             return episode;
         }
 
-        public async Task<bool> AddDownloadLink(StringIntegerDto dramaEpNo)
+        public async Task<int> AddDownloadLink(TwointDto dramaEpNo)
         {
-            var episode = GetEpisode(dramaEpNo.String, dramaEpNo.Number);
+            var episode = GetEpisode(dramaEpNo.interger1, dramaEpNo.interger2);
             try
             {
                 await _generateLinkService.GetManifest(new StringDto(episode.EpisodeSource));
@@ -279,13 +279,13 @@ namespace vikiProject
                     }
 
 
-                    await SetEpisodeDownloadlink((Quality) qValue, episode, aLink, vLink);
+                    await SetEpisodeDownloadlink((Quality) qValue, episode, aLink, vLink); // todo set event
                 }
             }
 
 
             await _dbContext.SaveChangesAsync();
-            return true;
+            return episode.EpisodeNumber;
         }
 
         public async Task<TwoStringDto> GetEpisodeDownloadlinks(GetDownloadLinkDto getLink)

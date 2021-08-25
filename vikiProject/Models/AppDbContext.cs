@@ -33,8 +33,11 @@ namespace vikiProject.Models
 
 
             //drama
+
+
+
             modelBuilder.Entity<Drama>()
-                .HasKey(d => d.DramaId);
+                .HasKey(d => d.DramaId);   
             modelBuilder.Entity<Drama>()
                 .Property(d => d.DramaId);
             modelBuilder.Entity<Drama>()

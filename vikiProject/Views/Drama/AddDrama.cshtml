@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Http
+@model System.Collections.Generic.List<(int, string)>
+
+@{
+    ViewBag.Title = "Add Drama";
+    Layout = "_Layout";
+    var dramaName = Context.Session.GetString("search");
+}
+
+<h2>Add Drama</h2>
+<div class="list-group">
+    
+    <a class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">Search Results</a>
+    @{
+        foreach (var drama in Model )
+        {
+        <a href="/@drama.Item1/episodes?drama=@dramaName" class="list-group-item list-group-item-action" aria-current="true">@drama.Item2</a>
+        }
+
+    }
+        
+
+    
+</div>
