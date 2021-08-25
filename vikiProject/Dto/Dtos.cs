@@ -27,7 +27,7 @@ namespace vikiProject.Dto
 
     
 
-    public record GetDownloadLinkDto(string String, int Number, Quality Quality);
+    public record GetDownloadLinkDto(int Did, int Eid, Quality Quality);
 
   
 }

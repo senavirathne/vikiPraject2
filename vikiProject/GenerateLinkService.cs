@@ -80,25 +80,30 @@ namespace vikiProject
 
         public async Task<TwoStringDto> GetMpd2()
         {
-            var xml1 = await GetMpd(Link);
+            if (!string.IsNullOrEmpty(Link))
+            {
+                var xml1 = await GetMpd(Link);
 
-            var regex = new Regex(@"<BaseURL>.+\.mpd<\/BaseURL>").Matches(xml1);
+                var regex = new Regex(@"<BaseURL>.+\.mpd<\/BaseURL>").Matches(xml1);
             
 
-            if (regex.Count == 1)
-            {
-                var regex2 = new Regex(@"https:\/\/[\w|\.].+\/\d.+v\/dash\/\d").Match(xml1).Value;
+                if (regex.Count == 1)
+                {
+                    var regex2 = new Regex(@"https:\/\/[\w|\.].+\/\d.+v\/dash\/\d").Match(xml1).Value;
                
-                var regexValue = regex[0].Value;
-                var xml2 = await GetMpd(regexValue[9..^10]);
+                    var regexValue = regex[0].Value;
+                    var xml2 = await GetMpd(regexValue[9..^10]);
                 
                 
                 
-                return new TwoStringDto(regex2[..^1], xml2);
+                    return new TwoStringDto(regex2[..^1], xml2);
+                }
+
+            
+                return new TwoStringDto("", xml1);
             }
 
-            
-            return new TwoStringDto("", xml1);
+            return null; // todo
         }
     }
 

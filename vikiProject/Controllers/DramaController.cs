@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using vikiProject.Dto;
+using vikiProject.Models;
 
 namespace vikiProject.Controllers
 {
@@ -70,54 +73,38 @@ namespace vikiProject.Controllers
         {
             if (HttpContext.Session.IsAvailable)
             {
+                HttpContext.Session.SetInt32("eId", eId);
                 var episodeNo = await _kdramaMainService.AddDownloadLink(new TwointDto(dId, eId));
-                return View(episodeNo);
+                return View(2);
             }
 
             return Redirect("/");
         }
 
-//         [HttpGet]
-//         public async Task<IActionResult> Get()
-//         {
-//             const string drama = "playful kiss";//search value
-//             // var findDrama = await _addDramaService.GetDramaNameswithCodes(new StringDto(drama));
-//             //return view
-//
+        [HttpPost]
+        [Route("/drama")]
+        public async Task<IActionResult> EpisodePost()
+        {
+            if (HttpContext.Session.IsAvailable)
+            {
+                var req = HttpContext.Request.Form;
+                if (req["submit"].ToString().Equals("Generate"))
+                {
+                    var dId = HttpContext.Session.GetInt32("dId").GetValueOrDefault();
+                    var eId = HttpContext.Session.GetInt32("eId").GetValueOrDefault();
+
+                    var quality = (Quality) int.Parse(req["quality"]);
+                    var links =await _kdramaMainService.GetEpisodeDownloadlinks(new GetDownloadLinkDto(dId, eId, quality));
+
+                    return View(links);
+                }
+            }
+            return Redirect("/");
+        }
+
+//         
 // //todo don't check every where true use void
 // // todo make new other name and add drama's other name list
-//             //code of selected one
-//             
-//             // if (!addDrama)
-//             // {
-//             //     return NotFound();
-//             // }
-//
-//             var response = new JsonResult(new { name = "get"})
-//             {
-//                 StatusCode = (int) HttpStatusCode.Created
-//             };
-//             return response;
-//         }
-
-        // [HttpGet]
-        // [Route("/Get2")]
-        // public async Task<IActionResult> Get2()
-        // {
-        //     const string name = "Playful Kiss";
-        //     const int no = 1;
-
-        //     // if (!addDrama)
-        //     // {
-        //     //     return NotFound();
-        //     // }
-        //
-        //     var response = new JsonResult(new {name = "get2" })
-        //     {
-        //         StatusCode = (int) HttpStatusCode.Created,
-        //         
-        //     };
-        //     return response;
-        // }
+//            
     }
 }

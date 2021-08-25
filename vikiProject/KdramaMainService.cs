@@ -26,24 +26,13 @@ namespace vikiProject
         }
 
 
-        //  public async Task<bool> SetOtherNames(StringIntegerDto nameAndCode)// todo is this correct
-        // {
-        //     var otherName = new OtherName(nameAndCode.Number, nameAndCode.String);
-        //     
-        //     var status = await _dbContext.OtherNames.AddAsync(otherName);
-        //    
-        //     
-        //     
-        //         await _dbContext.SaveChangesAsync();
-        //         return true;
-        //    
-        // }
+         
 
         public async Task<StringIntegerDto> AddDramaFromJObject(StringIntegerDto codeAndName) // check drama exits todo
         {
             var jObject = (await _addDramaService.GetDramaDetailsAsJObject(new IntegerDto(codeAndName.Number))).JObject;
 
-            if (jObject != null)
+            if (jObject.response.Count >5)
             {
                 var dramaId = codeAndName.Number;
                 var dramaName = jObject.response[0].container.titles.en ?? jObject.response[0].container.titles.hi;
@@ -292,10 +281,10 @@ namespace vikiProject
         {
             if (getLink != null)
             {
-                var dLink = (await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == getLink.String))
-                    .Episodes.FirstOrDefault(e => e.EpisodeNumber == getLink.Number)?.DownloadLinks
-                    .FirstOrDefault(l => l.Quality == getLink.Quality);
-                if (dLink != null && DateTime.Now.Second - dLink.AddedTime.Second > Constants.LinkExpiryTime)
+                var dLink =await _dbContext.DownloadLinks.Where(e => e.DramaId == getLink.Did && e.EpisodeNumber == getLink.Eid && e.Quality == getLink.Quality).FirstOrDefaultAsync();
+                    
+                
+                if (dLink != null && DateTime.Now.Second - dLink.AddedTime.Second < Constants.LinkExpiryTime)
                 {
                     return new TwoStringDto(dLink.VideoLink, dLink.AudioLink);
                 }

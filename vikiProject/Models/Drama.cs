@@ -13,8 +13,7 @@ namespace vikiProject.Models
          public string ImageSource { get; }
 
      public string MainName { get;  } // @ todo set name to p.Key
-
-        // public List<string> OtherNames { get; set; }
+     
          public int NoOfEpisodes { get; }
 
 

@@ -62,8 +62,13 @@ namespace vikiProject
 
             using var response = (HttpWebResponse) await request.GetResponseAsync(); // todo use http client
             await using var stream = response.GetResponseStream();
-            using var reader = new StreamReader(stream).ReadToEndAsync();
-            return new StringDto(await reader);
+            var reader =await new StreamReader(stream).ReadToEndAsync();
+            if (reader.Length >100)
+            {
+                return new StringDto( reader);
+            }
+
+            return null; //todo 
         }
 
         
