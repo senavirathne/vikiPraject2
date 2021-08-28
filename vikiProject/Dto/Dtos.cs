@@ -14,6 +14,7 @@ namespace vikiProject.Dto
     // public record AddEpisodeDto(Drama Drama, int EpisodeNumber, string EpisodeSource, string ImageSource);
     
     public record StringDto(string String);
+    public record ListDto(List<Tuple<int,string>> List);
 
     public record TwoStringDto(string String1, string String2);
     public record TwointDto(int interger1, int interger2);//todo is it better to use tuple 

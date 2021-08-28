@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace vikiProject
 {
     public class AddDramaService
     {
-        private async Task<string> FindDrama(string drama)
+        private async Task<string> FindDramaFromGoogle(string drama)
         {
             var uri = "https://www.google.com/search?q=site%3Aviki.com%20" + drama.Trim().Replace(" ", "%20");
             var request = (HttpWebRequest) WebRequest.Create(uri);
@@ -26,25 +27,25 @@ namespace vikiProject
             return await reader.ReadToEndAsync();
         }
 
-        private async Task<List<string>> GetDrama(string drama)
+        private async Task<List<string>> GetDramaFromGoogle(string drama)
         {
-            var body = await FindDrama(drama);
+            var body = await FindDramaFromGoogle(drama);
             var regex = new Regex(@"(?<=https:\/\/www\.viki\.com\/tv\/)\d+c[-|\w]+");
             return regex.Matches(body).Select(m => m.Value).Distinct().ToList();
         }
 
 // user search on search bar todo add drama name to other names
-        public async Task<List<(int code, string name)>> GetDramaNameswithCodes(StringDto drama)
+        public async Task<List<Tuple<int,string>>> GetDramaNameswithCodes(StringDto drama)
         {
-            var dramaList = await GetDrama(drama.String);
+            var dramaList = await GetDramaFromGoogle(drama.String);
             var regex = new Regex(@"\d+c-[-|\w]+");
-            var list = new List<(int, string)>();
+            var list = new List<Tuple<int,string>>();
             foreach (var d in dramaList)
             {
                 if (regex.Matches(d).Count == 1)
                 {
                     var x = d.Split("c-");
-                    list.Add((int.Parse(x[0]), x[1].Replace("-", " ")));
+                    list.Add(new Tuple<int, string>(int.Parse(x[0]), x[1].Replace("-", " ")));
                 }
             }
 

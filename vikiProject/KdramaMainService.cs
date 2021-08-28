@@ -26,13 +26,11 @@ namespace vikiProject
         }
 
 
-         
-
         public async Task<StringIntegerDto> AddDramaFromJObject(StringIntegerDto codeAndName) // check drama exits todo
         {
             var jObject = (await _addDramaService.GetDramaDetailsAsJObject(new IntegerDto(codeAndName.Number))).JObject;
 
-            if (jObject.response.Count >5)
+            if (jObject.response.Count > 5)
             {
                 var dramaId = codeAndName.Number;
                 var dramaName = jObject.response[0].container.titles.en ?? jObject.response[0].container.titles.hi;
@@ -160,22 +158,18 @@ namespace vikiProject
         }
 
 
-        public async Task<IEnumerable<StringDto>> SearchDramaName(StringDto searchTerm)
+        public async Task<ListDto> SearchDramaName(StringDto searchTerm)
         {
-            if (searchTerm != null)
-            {
-                return (await _dbContext.Dramas.Where(d => d.MainName.Contains(searchTerm.String)).ToListAsync())
-                    .Select(d => new StringDto(d.MainName));
-            }
-
-            return null; // @todo
+            var list = await _dbContext.OtherNames.Where(d => d.Name.Contains(searchTerm.String))
+                .Select(s =>new Tuple<int, string>(s.DramaId,s.Drama.MainName)).ToListAsync();
+            return list.Count > 0 ? new ListDto(list) : null;
         }
 
-        public async Task<IntegerDto> GetNoOfEpisodes(StringDto dramaName)
+        public async Task<IntegerDto> GetNoOfEpisodes(IntegerDto dramaId)
         {
-            if (dramaName != null)
+            if (dramaId != null)
             {
-                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.MainName == dramaName.String);
+                var drama = await _dbContext.Dramas.FirstOrDefaultAsync(d => d.DramaId == dramaId.Number);
                 return new IntegerDto(drama.NoOfEpisodes);
             }
 
@@ -281,9 +275,11 @@ namespace vikiProject
         {
             if (getLink != null)
             {
-                var dLink =await _dbContext.DownloadLinks.Where(e => e.DramaId == getLink.Did && e.EpisodeNumber == getLink.Eid && e.Quality == getLink.Quality).FirstOrDefaultAsync();
-                    
-                
+                var dLink = await _dbContext.DownloadLinks.Where(e =>
+                        e.DramaId == getLink.Did && e.EpisodeNumber == getLink.Eid && e.Quality == getLink.Quality)
+                    .FirstOrDefaultAsync();
+
+
                 if (dLink != null && DateTime.Now.Second - dLink.AddedTime.Second < Constants.LinkExpiryTime)
                 {
                     return new TwoStringDto(dLink.VideoLink, dLink.AudioLink);

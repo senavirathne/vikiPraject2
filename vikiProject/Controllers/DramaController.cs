@@ -36,14 +36,24 @@ namespace vikiProject.Controllers
 
         [HttpGet]
         [Route("/addDrama")] //todo add session
-        public async Task<IActionResult> AddDrama(string searchText)
+        public async Task<IActionResult> AddDrama(string searchText) //search drama
         {
             if (!string.IsNullOrEmpty(searchText))
             {
-                HttpContext.Session.SetString("search", searchText);
-                List<(int, string)> dramaNames =
-                    await _addDramaService.GetDramaNameswithCodes(new StringDto(searchText));
+                
+                var list = _kdramaMainService.SearchDramaName(new StringDto(searchText)).Result;
+                if (list != null)// search from db
+                {
+                    HttpContext.Session.SetInt32("searchFromDb", 1);
+                    return View(list.List); 
+                }
+
+                HttpContext.Session.SetString("search", searchText);//to send db othernames 
+                var dramaNames =
+                    await _addDramaService.GetDramaNameswithCodes(new StringDto(searchText)); //from google
+                // HttpContext.Session.SetInt32("searchFromDb", 0);
                 return View(dramaNames);
+
             }
 
 
@@ -56,12 +66,23 @@ namespace vikiProject.Controllers
         {
             if (HttpContext.Session.IsAvailable)
             {
+                var searchFromDb = HttpContext.Session.GetInt32("searchFromDb");
+                if (searchFromDb ==1)
+                {
+                 var x = await _kdramaMainService.GetNoOfEpisodes(new IntegerDto(id));
+                 HttpContext.Session.SetString("dramaName", drama);
+                 HttpContext.Session.SetInt32("dId", id);
+                 return View(x.Number);
+                }
                 var (dramaName, nOfEpis) =
                     await _kdramaMainService.AddDramaFromJObject(new StringIntegerDto(drama, id));
 
-                HttpContext.Session.SetString("dramaName", dramaName);
-                HttpContext.Session.SetInt32("dId", id);
-                return View(nOfEpis);
+                // if (!string.IsNullOrEmpty(dramaName))
+                {
+                    HttpContext.Session.SetString("dramaName", dramaName);
+                    HttpContext.Session.SetInt32("dId", id);
+                    return View(nOfEpis);
+                }
             }
 
             return Redirect("/");
@@ -75,7 +96,7 @@ namespace vikiProject.Controllers
             {
                 HttpContext.Session.SetInt32("eId", eId);
                 var episodeNo = await _kdramaMainService.AddDownloadLink(new TwointDto(dId, eId));
-                return View(2);
+                return View(episodeNo);
             }
 
             return Redirect("/");

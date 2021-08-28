@@ -1,10 +1,12 @@
 @using Microsoft.AspNetCore.Http
-@model System.Collections.Generic.List<(int, string)>
+@model List<Tuple<int, string>>
 
 @{
     ViewBag.Title = "Add Drama";
     Layout = "_Layout";
     var dramaName = Context.Session.GetString("search");
+    var fromDb = Context.Session.GetInt32("searchFromDb");
+    
 }
 
 <h2>Add Drama</h2>
@@ -12,10 +14,21 @@
     
     <a class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">Search Results</a>
     @{
-        foreach (var drama in Model )
+        if (fromDb == 1)
         {
-        <a href="/@drama.Item1/episodes?drama=@dramaName" class="list-group-item list-group-item-action" aria-current="true">@drama.Item2</a>
+            foreach (var drama in Model )
+            {
+                <a href="/@drama.Item1/episodes?drama=@drama.Item2" class="list-group-item list-group-item-action" aria-current="true">@drama.Item2</a>
+            }
         }
+        else
+        {
+            foreach (var drama in Model )
+            {
+                <a href="/@drama.Item1/episodes?drama=@dramaName" class="list-group-item list-group-item-action" aria-current="true">@drama.Item2</a>
+            } 
+        }
+        
 
     }
         
